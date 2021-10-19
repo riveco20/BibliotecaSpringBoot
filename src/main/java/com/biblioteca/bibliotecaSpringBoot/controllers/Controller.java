@@ -1,69 +1,71 @@
 package com.biblioteca.bibliotecaSpringBoot.controllers;
 
 
-import com.biblioteca.bibliotecaSpringBoot.dtos.BibliotecaDTO;
-import com.biblioteca.bibliotecaSpringBoot.services.ServiceBiblioteca;
+import com.biblioteca.bibliotecaSpringBoot.dtos.EbookDTO;
+import com.biblioteca.bibliotecaSpringBoot.services.ServiceEbook;
+import lombok.experimental.PackagePrivate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.UnsatisfiedDependencyException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
-@RequestMapping("biblioteca")
+@RequestMapping("biblioteca/Ebook")
 public class Controller {
+
     Logger logger = LoggerFactory.getLogger(Controller.class);
-    private ServiceBiblioteca servicio;
 
     @Autowired
-    public Controller(ServiceBiblioteca servicio){
-        this.servicio=servicio;
+    private ServiceEbook serviceEbook;
+
+    @GetMapping(value = "/{id}")
+    public ResponseEntity<EbookDTO> mostrarPorID(@PathVariable() String id){
+        return serviceEbook.getById(id).map(ebookDTO -> new ResponseEntity<>(ebookDTO,HttpStatus.OK)).orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
-    @PostMapping(value = "/agregar")
-    public ResponseEntity<BibliotecaDTO> add(@RequestBody BibliotecaDTO bibliotecaDTO){
-        return ResponseEntity.accepted().body(servicio.guardar(bibliotecaDTO));
-         }
-
-    @GetMapping()
-    public ResponseEntity<BibliotecaDTO> findAll(){
-        return new ResponseEntity(servicio.obtenerElementos(), HttpStatus.OK);
+    @GetMapping(value = "/mostraTodos")
+    public List<EbookDTO> listarTodos(){
+        return serviceEbook.mostrarTodos();
     }
 
-    @PutMapping
-    public ResponseEntity<BibliotecaDTO> edit(@RequestBody BibliotecaDTO bibliotecaDTO){
-        if (!bibliotecaDTO.getId().isEmpty()){
-            return new ResponseEntity(servicio.actualizar(bibliotecaDTO), HttpStatus.OK);
+
+    @PostMapping(value="crear")
+    public ResponseEntity<EbookDTO> crear (@RequestBody EbookDTO ebookDTO){
+        return new ResponseEntity<>(serviceEbook.agregarEbook(ebookDTO),HttpStatus.CREATED);
+    }
+
+    @DeleteMapping(value = "/{id}")
+    public ResponseEntity<Object> delete(@PathVariable String id){
+        if(serviceEbook.eliminarEbookPorID(id)){
+            return new ResponseEntity<>(HttpStatus.OK);
         }
-        return new ResponseEntity(HttpStatus.NOT_FOUND);
+        return  new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<BibliotecaDTO> delete(@PathVariable("id") String id){
-        try {
-            servicio.eliminar(id);
-            return  new ResponseEntity(HttpStatus.OK);
-        }catch (Exception e){
-            logger.error("ocurrio un error: "+e);
-            return new ResponseEntity(HttpStatus.NOT_FOUND);
-        }
+    @PutMapping(value = "/actualizar")
+    public  ResponseEntity<EbookDTO> actualizar(@RequestBody EbookDTO ebookDTO){
+        return new ResponseEntity<>(serviceEbook.actualizarEbook(ebookDTO), HttpStatus.OK);
     }
 
-    @GetMapping("/disponible/{id}")
-    public ResponseEntity availability(@PathVariable("id") String id){
-        return new ResponseEntity(servicio.comprobarDisponibilidad(id), HttpStatus.OK);
+    @PutMapping(value = "/disponible")
+    public ResponseEntity<String> libroDisponible(@PathVariable() EbookDTO id){
+        return new ResponseEntity<>(serviceEbook.verificarDisponibleEbook(id), HttpStatus.OK);
     }
 
-    @PutMapping("/prestar/{id}")
-    public ResponseEntity lend(@PathVariable("id") String id){
-        return  new ResponseEntity(servicio.prestar(id), HttpStatus.OK);
+    @GetMapping("/recomendar/tipo/{tipo}")
+    public ResponseEntity<List<EbookDTO>> recomendarPorTipo(@PathVariable() String tipo){
+        return new ResponseEntity<>(serviceEbook.recomendarPorTipo(tipo),HttpStatus.OK);
     }
 
-    @PutMapping("/devolver/{id}")
-    public ResponseEntity returnResource(@PathVariable("id") String id){
-        return  new ResponseEntity(servicio.regresarRecurso(id),HttpStatus.OK);
+    @GetMapping("/recomendar/tematica/{tematica}")
+    public ResponseEntity<List<EbookDTO>> recomendarPorCategoria(@PathVariable() String categoria){
+        return new ResponseEntity<>(serviceEbook.recomendarPorCategoria(categoria),HttpStatus.OK);
     }
+
+
 
 }
