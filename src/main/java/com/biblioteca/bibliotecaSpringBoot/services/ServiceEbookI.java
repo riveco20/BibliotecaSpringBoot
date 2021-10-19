@@ -14,9 +14,11 @@ public interface ServiceEbookI {
     public EbookDTO agregarEbook(EbookDTO ebookDTO);
     public boolean eliminarEbookPorID(String id);
     public EbookDTO actualizarEbook(EbookDTO ebookDTO);
-    public String verificarDisponibleEbook(EbookDTO ebookDTO);
+    public boolean verificarDisponibleEbook(EbookDTO ebookDTO);
     public List<EbookDTO> recomendarPorCategoria(String tema);
     public List<EbookDTO> recomendarPorTipo(String tipo);
+    public String ebookPrestado(String id);
+    public String ebookRegresado(String id);
 
 
 }

@@ -38,6 +38,16 @@ public class Controller {
         return new ResponseEntity<>(serviceEbook.agregarEbook(ebookDTO),HttpStatus.CREATED);
     }
 
+    @PutMapping("/prestar/{id}")
+    public ResponseEntity<String> ebookPrestado(@PathVariable() String id){
+        return new ResponseEntity<>(serviceEbook.ebookPrestado(id),HttpStatus.OK);
+    }
+
+    @PutMapping("/devolver/{id}")
+    public ResponseEntity ebookRegresado(@PathVariable("id") String id) {
+        return new ResponseEntity(serviceEbook.ebookRegresado(id), HttpStatus.OK);
+    }
+    
     @DeleteMapping(value = "/{id}")
     public ResponseEntity<Object> delete(@PathVariable String id){
         if(serviceEbook.eliminarEbookPorID(id)){
@@ -53,7 +63,7 @@ public class Controller {
 
     @PutMapping(value = "/disponible")
     public ResponseEntity<String> libroDisponible(@PathVariable() EbookDTO id){
-        return new ResponseEntity<>(serviceEbook.verificarDisponibleEbook(id), HttpStatus.OK);
+        return new ResponseEntity(serviceEbook.verificarDisponibleEbook(id), HttpStatus.OK);
     }
 
     @GetMapping("/recomendar/tipo/{tipo}")

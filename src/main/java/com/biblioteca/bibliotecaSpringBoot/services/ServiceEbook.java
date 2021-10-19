@@ -8,6 +8,7 @@ import com.biblioteca.bibliotecaSpringBoot.repositories.RepositorieEbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -78,12 +79,9 @@ public class ServiceEbook implements ServiceEbookI{
 
 
     @Override
-    public String verificarDisponibleEbook(EbookDTO ebookDTO) {
+    public boolean verificarDisponibleEbook(EbookDTO ebookDTO) {
 
-        if(ebookDTO.getCantidadDeEbookDisponible()>ebookDTO.getCantidadDeEbookPrestada()){
-            System.out.println("Hay libros disponibles" + (ebookDTO.getCantidadDeEbookDisponible() - ebookDTO.getCantidadDeEbookPrestada()));
-        }
-        return  "no hay libros disponibles"  ;
+        return ebookDTO.getCantidadDeEbookDisponible()>ebookDTO.getCantidadDeEbookPrestada();
     }
 
     @Override
@@ -104,6 +102,41 @@ public class ServiceEbook implements ServiceEbookI{
         });
         return ebookDTOS;
 
+    }
+
+    @Override
+    public String ebookPrestado(String id) {
+
+        return getById(id).map(ebookDTO -> {
+            if(verificarDisponibleEbook(ebookDTO)){
+                ebookDTO.setCantidadDeEbookPrestada(ebookDTO.getCantidadDeEbookPrestada()+1);
+                ebookDTO.setFechaPrestadoEbook(LocalDate.now());
+
+                Ebook ebookActualizado = mapperEbook.toEbook(ebookDTO);
+                repositorieEbook.save(ebookActualizado);
+
+                return "El prestamo del libro a sido exitoso";
+            }
+            return "No esta disponible en el momento";
+        }).orElseThrow(()->new RuntimeException("No existe"));
+
+    }
+
+    @Override
+    public String ebookRegresado(String id) {
+        return getById(id).map(ebookDTO -> {
+
+            if(ebookDTO.getCantidadDeEbookPrestada()>0){
+                ebookDTO.setCantidadDeEbookPrestada(ebookDTO.getCantidadDeEbookPrestada()-1);
+
+                Ebook recursoModificado = mapperEbook.toEbook(ebookDTO);
+                repositorieEbook.save(recursoModificado);
+
+                return "Devolucion exitosa";
+            }
+
+            return "No hay prestamos";
+        }).orElseThrow(()-> new RuntimeException("No existe"));
     }
 
 }
