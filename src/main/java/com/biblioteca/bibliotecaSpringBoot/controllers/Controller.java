@@ -3,7 +3,6 @@ package com.biblioteca.bibliotecaSpringBoot.controllers;
 
 import com.biblioteca.bibliotecaSpringBoot.dtos.EbookDTO;
 import com.biblioteca.bibliotecaSpringBoot.services.ServiceEbook;
-import lombok.experimental.PackagePrivate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,7 +46,7 @@ public class Controller {
     public ResponseEntity ebookRegresado(@PathVariable("id") String id) {
         return new ResponseEntity(serviceEbook.ebookRegresado(id), HttpStatus.OK);
     }
-    
+
     @DeleteMapping(value = "/{id}")
     public ResponseEntity<Object> delete(@PathVariable String id){
         if(serviceEbook.eliminarEbookPorID(id)){

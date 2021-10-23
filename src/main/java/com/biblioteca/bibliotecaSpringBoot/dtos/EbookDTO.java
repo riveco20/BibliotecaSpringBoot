@@ -1,5 +1,6 @@
 package com.biblioteca.bibliotecaSpringBoot.dtos;
 
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -24,6 +25,4 @@ public class EbookDTO {
     private Integer cantidadDeEbookPrestada;
 
 
-
 }
-
